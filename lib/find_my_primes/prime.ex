@@ -11,7 +11,7 @@ defmodule FindMyPrimes.Prime do
   def list(0) do
     []
   end
-  def list(count) when count > 0 do
+  def list(count) when is_integer(count) and count > 0 do
     list(count - 1, 3, [2])
   end
 
