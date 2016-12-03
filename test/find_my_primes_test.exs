@@ -15,13 +15,14 @@ defmodule FindMyPrimesTest do
 
   describe "async_table/1" do
     test "table is computed and client does not wait for reply" do
-      assert :ok == FindMyPrimes.async_table(3)
-      assert_receive """
+      assert {:ok, ref} = FindMyPrimes.async_table(3)
+      assert is_reference(ref)
+      assert_receive {:prime_table, ^ref, """
       |    |  2 |  3 |  5 |
       |  2 |  4 |  6 | 10 |
       |  3 |  6 |  9 | 15 |
       |  5 | 10 | 15 | 25 |
-      """
+      """}
     end
   end
 end

@@ -32,7 +32,7 @@ defmodule FindMyPrimes.Grid do
     overlap = rem(num_items, num_cols)
     padding_size = case overlap do
       0 -> 0
-      n -> num_cols - overlap
+      _ -> num_cols - overlap
     end
     List.duplicate("", padding_size)
   end
