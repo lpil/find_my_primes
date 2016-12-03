@@ -1,7 +1,9 @@
 defmodule FindMyPrimes do
   use Application
+  alias FindMyPrimes.Manager
 
-  defdelegate table(n), to: FindMyPrimes.Manager
+  defdelegate table(n), to: Manager
+  defdelegate async_table(n), to: Manager
 
   #
   # Callbacks
@@ -32,6 +34,10 @@ defmodule FindMyPrimes.Manager do
     GenServer.call(__MODULE__, {:table, n})
   end
 
+  def async_table(n) when is_integer(n) and n >= 1 do
+    GenServer.cast(__MODULE__, {:table, n, self()})
+  end
+
   #
   # Callbacks
   #
@@ -41,10 +47,18 @@ defmodule FindMyPrimes.Manager do
   end
 
   def handle_call({:table, n}, from, state) do
-    Task.Supervisor.start_child(TaskSupervisor, fn->
-      Worker.reply_with_table(n, from)
-    end)
+    :ok = spawn_worker(fn-> Worker.reply_with_table(n, from) end)
     {:noreply, state}
+  end
+
+  def handle_cast({:table, n, from}, state) do
+    :ok = spawn_worker(fn-> Worker.send_table(n, from) end)
+    {:noreply, state}
+  end
+
+  defp spawn_worker(func) do
+    {:ok, _} = Task.Supervisor.start_child(TaskSupervisor, func)
+    :ok
   end
 end
 
@@ -54,6 +68,10 @@ defmodule FindMyPrimes.Worker do
 
   def reply_with_table(num, target) do
     GenServer.reply(target, table(num))
+  end
+
+  def send_table(num, target) do
+    send target, table(num)
   end
 
   defp table(num) do
