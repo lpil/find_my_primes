@@ -51,7 +51,6 @@ value of the function to pair calls with responses.
 ## Next Steps
 
 - `O(n)` prime generation.
-- `O(n)` multiplication table calculation.
 - More tests for Manager and Worker modules.
 - Prime memoisation could be fun.
 - Accept requests over TCP? :)
